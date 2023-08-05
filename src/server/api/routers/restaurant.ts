@@ -18,6 +18,12 @@ export const restaurantRouter = createTRPCRouter({
     return ctx.prisma.restaurant.findMany();
   }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(({ input, ctx }) => {
+      return ctx.prisma.restaurant.findUnique({ where: { id: input.id } });
+    }),
+
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
