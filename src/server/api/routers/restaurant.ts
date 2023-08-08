@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { restaurantCreateInputSchema } from "~/schemas";
+// import { Prisma } from "@prisma/client";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -14,6 +16,11 @@ export const restaurantRouter = createTRPCRouter({
       };
     }),
 
+  getSecretMessage: protectedProcedure.query(() => {
+    return "you can now see this secret message!";
+  }),
+
+  // User procedures
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.restaurant.findMany();
   }),
@@ -24,7 +31,31 @@ export const restaurantRouter = createTRPCRouter({
       return ctx.prisma.restaurant.findUnique({ where: { id: input.id } });
     }),
 
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
+  // Admin procedures
+  getMine: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.restaurant.findMany({
+      where: { ownerId: ctx.session.user.id },
+      include: {
+        menu: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
   }),
+  create: protectedProcedure
+    .input(restaurantCreateInputSchema)
+    .mutation(({ input, ctx }) => {
+      return ctx.prisma.restaurant.create({
+        data: {
+          name: input.name,
+          slug: input.slug,
+          address: input.address,
+          description: input.description,
+          image: input.image,
+          ownerId: ctx.session.user.id,
+        },
+      });
+    }),
 });

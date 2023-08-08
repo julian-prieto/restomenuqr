@@ -36,13 +36,17 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String       @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?      @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    Restaurant    Restaurant[]
+    Menu          Menu[]
+    Category      Category[]
+    Product       Product[]
 }
 
 model VerificationToken {
@@ -53,13 +57,74 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
+// Application Models
+
 model Restaurant {
     id          String    @id @default(cuid())
     name        String
+    slug        String
     description String?
     image       String?
     address     String?
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
     deletedAt   DateTime?
+    owner       User      @relation(fields: [ownerId], references: [id])
+    ownerId     String
+    menu        Menu[]
+
+    @@index([ownerId])
+}
+
+model Menu {
+    id           String     @id @default(cuid())
+    name         String
+    description  String?
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    deletedAt    DateTime?
+    restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+    restaurantId String
+    owner        User       @relation(fields: [ownerId], references: [id])
+    ownerId      String
+    category     Category[]
+
+    @@index([ownerId])
+    @@index([restaurantId])
+}
+
+model Category {
+    id          String    @id @default(cuid())
+    name        String
+    description String?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+    menu        Menu      @relation(fields: [menuId], references: [id])
+    menuId      String
+    owner       User      @relation(fields: [ownerId], references: [id])
+    ownerId     String
+    product     Product[]
+
+    @@index([ownerId])
+    @@index([menuId])
+}
+
+model Product {
+    id          String    @id @default(cuid())
+    name        String
+    description String?
+    image       String?
+    price       String?
+    featured    Boolean   @default(false)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+    category    Category  @relation(fields: [categoryId], references: [id])
+    categoryId  String
+    owner       User      @relation(fields: [ownerId], references: [id])
+    ownerId     String
+
+    @@index([categoryId])
+    @@index([ownerId])
 }
