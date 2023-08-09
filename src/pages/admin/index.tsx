@@ -1,8 +1,8 @@
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import {
-  TCategoryCreateInputSchema,
+  type TCategoryCreateInputSchema,
   type TMenuCreateInputSchema,
   type TRestaurantCreateInputSchema,
 } from "~/schemas";
@@ -79,25 +79,19 @@ export default function Restaurant() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           {myRestaurants.data?.map((r) => (
-            <div
-              className="w-full overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6"
-              key={r.id}
-            >
+            <Card key={r.id}>
               <div className="mb-8 text-3xl font-semibold text-gray-900">
                 {r.name}
               </div>
               {r.menu.map((m) => (
-                <div
-                  key={m.id}
-                  className="mt-2 rounded-lg bg-slate-200 px-4 py-5 shadow sm:p-6"
-                >
+                <Card key={m.id}>
                   <div>{m.name}</div>
                   <div className="my-4 h-0.5 w-full bg-slate-400" />
                   {m.category.map((c) => (
-                    <div key={c.id}>{c.name}</div>
+                    <Card key={c.id}>{c.name}</Card>
                   ))}
-                  <h1 className="text-3xl font-bold">Crear Categoría</h1>
-                  <div className="">
+                  <Card>
+                    <h1 className="text-3xl font-bold">Crear Categoría</h1>
                     {Object.entries(cFormData).map(([field, value]) => (
                       <input
                         className="border border-slate-200"
@@ -120,36 +114,37 @@ export default function Restaurant() {
                     >
                       Crear
                     </button>
-                  </div>
-                </div>
+                  </Card>
+                </Card>
               ))}
-
-              <h1 className="text-3xl font-bold ">Crear Menu</h1>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-                {Object.entries(mFormData).map(([field, value]) => (
-                  <input
-                    className="border border-slate-200"
-                    key={field}
-                    value={value}
-                    placeholder={field}
-                    onChange={(e) =>
-                      setMFormData((prev) => ({
-                        ...prev,
-                        [field]: e.target.value,
-                      }))
+              <Card>
+                <h1 className="text-3xl font-bold ">Crear Menu</h1>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
+                  {Object.entries(mFormData).map(([field, value]) => (
+                    <input
+                      className="border border-slate-200"
+                      key={field}
+                      value={value}
+                      placeholder={field}
+                      onChange={(e) =>
+                        setMFormData((prev) => ({
+                          ...prev,
+                          [field]: e.target.value,
+                        }))
+                      }
+                    />
+                  ))}
+                  <button
+                    className="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    onClick={() =>
+                      createMenu.mutate({ ...mFormData, restaurantId: r.id })
                     }
-                  />
-                ))}
-                <button
-                  className="inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  onClick={() =>
-                    createMenu.mutate({ ...mFormData, restaurantId: r.id })
-                  }
-                >
-                  Crear
-                </button>
-              </div>
-            </div>
+                  >
+                    Crear
+                  </button>
+                </div>
+              </Card>
+            </Card>
           ))}
           <h1 className="text-4xl font-bold text-white">Crear Restaurant</h1>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
@@ -175,3 +170,11 @@ export default function Restaurant() {
     </>
   );
 }
+
+const Card = ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="mb-4 w-full rounded-lg border border-slate-700 bg-white p-4">
+      {children}
+    </div>
+  );
+};

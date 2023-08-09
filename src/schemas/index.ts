@@ -29,3 +29,13 @@ export const categoryCreateInputSchema = z.object({
 export type TCategoryCreateInputSchema = z.infer<
   typeof categoryCreateInputSchema
 >;
+
+export const productCreateInputSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  menuId: z.string(),
+});
+
+export type TProductCreateInputSchema = z.infer<
+  typeof productCreateInputSchema
+>;
