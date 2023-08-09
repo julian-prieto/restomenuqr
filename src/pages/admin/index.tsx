@@ -13,7 +13,9 @@ export default function Restaurant() {
 
   const utils = api.useContext();
 
-  const myRestaurants = api.restaurant.getMine.useQuery();
+  const myRestaurants = api.restaurant.getMine.useQuery(undefined, {
+    enabled: session.status === "authenticated",
+  });
   const createRestaurant = api.restaurant.create.useMutation({
     onSuccess: () => utils.restaurant.getMine.invalidate(),
   });
