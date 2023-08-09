@@ -1,29 +1,30 @@
 import { TRPCError } from "@trpc/server";
-import { categoryCreateInputSchema } from "~/schemas";
+import { productCreateInputSchema } from "~/schemas";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
-export const categoryRouter = createTRPCRouter({
+export const productRouter = createTRPCRouter({
   // Admin procedures
   create: protectedProcedure
-    .input(categoryCreateInputSchema)
+    .input(productCreateInputSchema)
     .mutation(async ({ input, ctx }) => {
-      const isMenuOwner = await ctx.prisma.menu.findUnique({
+      const isCategoryOwner = await ctx.prisma.category.findUnique({
         where: {
-          id: input.menuId,
+          id: input.categoryId,
           ownerId: ctx.session.user.id,
         },
       });
 
-      if (!isMenuOwner) {
+      if (!isCategoryOwner) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
 
-      return ctx.prisma.category.create({
+      return ctx.prisma.product.create({
         data: {
           name: input.name,
           description: input.description,
           image: input.image,
-          menuId: input.menuId,
+          price: input.price,
+          categoryId: input.categoryId,
           ownerId: ctx.session.user.id,
         },
       });

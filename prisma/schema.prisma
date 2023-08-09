@@ -69,7 +69,7 @@ model Restaurant {
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
     deletedAt   DateTime?
-    owner       User      @relation(fields: [ownerId], references: [id])
+    owner       User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId     String
     menu        Menu[]
 
@@ -83,7 +83,7 @@ model Menu {
     createdAt    DateTime   @default(now())
     updatedAt    DateTime   @updatedAt
     deletedAt    DateTime?
-    restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+    restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
     restaurantId String
     owner        User       @relation(fields: [ownerId], references: [id])
     ownerId      String
@@ -97,10 +97,11 @@ model Category {
     id          String    @id @default(cuid())
     name        String
     description String?
+    image       String?
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
     deletedAt   DateTime?
-    menu        Menu      @relation(fields: [menuId], references: [id])
+    menu        Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
     menuId      String
     owner       User      @relation(fields: [ownerId], references: [id])
     ownerId     String
@@ -116,11 +117,11 @@ model Product {
     description String?
     image       String?
     price       String?
-    featured    Boolean   @default(false)
+    featured    Boolean?  @default(false)
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
     deletedAt   DateTime?
-    category    Category  @relation(fields: [categoryId], references: [id])
+    category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     categoryId  String
     owner       User      @relation(fields: [ownerId], references: [id])
     ownerId     String

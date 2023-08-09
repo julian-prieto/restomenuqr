@@ -38,7 +38,11 @@ export const restaurantRouter = createTRPCRouter({
       include: {
         menu: {
           include: {
-            category: true,
+            category: {
+              include: {
+                product: true,
+              },
+            },
           },
         },
       },
@@ -57,5 +61,10 @@ export const restaurantRouter = createTRPCRouter({
           ownerId: ctx.session.user.id,
         },
       });
+    }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ input, ctx }) => {
+      return ctx.prisma.restaurant.delete({ where: { id: input.id } });
     }),
 });
