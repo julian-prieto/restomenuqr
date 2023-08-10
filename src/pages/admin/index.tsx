@@ -1,9 +1,9 @@
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import Image from "next/image";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
-  TProductCreateInputSchema,
+  type TProductCreateInputSchema,
   type TCategoryCreateInputSchema,
   type TMenuCreateInputSchema,
   type TRestaurantCreateInputSchema,
