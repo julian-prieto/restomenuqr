@@ -28,7 +28,20 @@ export const restaurantRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ input, ctx }) => {
-      return ctx.prisma.restaurant.findUnique({ where: { id: input.id } });
+      return ctx.prisma.restaurant.findUnique({
+        where: { id: input.id },
+        include: {
+          menu: {
+            include: {
+              category: {
+                include: {
+                  product: true,
+                },
+              },
+            },
+          },
+        },
+      });
     }),
 
   // Admin procedures
