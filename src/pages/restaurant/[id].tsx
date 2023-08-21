@@ -1,13 +1,18 @@
-import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
+import { CategoryCard } from "~/components/category-card";
 import { api } from "~/utils/api";
 
 export default function Restaurant() {
   const router = useRouter();
   const restaurantId = router.query.id ? String(router.query.id) : "";
   const restaurant = api.restaurant.getById.useQuery({ id: restaurantId });
+
+  const [selectedCategory, setSelectedCategory] = useState<
+    string | undefined
+  >();
+  const selectCategory = (id: string) => setSelectedCategory(id);
 
   if (!restaurant.data) {
     return null;
@@ -44,18 +49,23 @@ export default function Restaurant() {
           </div>
         </div>
       </header>
-      <main className="container flex space-x-4 px-4 py-8">
-        {restaurant.data.menu?.[0]?.category.map((category) => {
-          return (
-            <div
-              key={category.id}
-              className="flex aspect-square w-1/4 flex-col items-center justify-between bg-slate-100 p-4"
-            >
-              <span className="text-5xl">{category.image}</span>
-              <span className="break-words">{category.name}</span>
-            </div>
-          );
-        })}
+      <main className="container mx-auto">
+        <div
+          className="flex flex-row gap-4 overflow-x-auto p-4"
+          id="categories"
+        >
+          {restaurant.data.menu?.[0]?.category.map((category) => {
+            const isSelected = category.id === selectedCategory;
+            return (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                onClick={() => selectCategory(category.id)}
+                selected={isSelected}
+              />
+            );
+          })}
+        </div>
       </main>
     </>
   );
@@ -70,9 +80,9 @@ const SearchIcon = () => (
     aria-hidden="true"
   >
     <path
-      fill-rule="evenodd"
+      fillRule="evenodd"
       d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-      clip-rule="evenodd"
+      clipRule="evenodd"
     />
   </svg>
 );
