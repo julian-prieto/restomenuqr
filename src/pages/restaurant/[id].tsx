@@ -1,18 +1,29 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { CategoryCard } from "~/components/category-card";
 import { api } from "~/utils/api";
+import { Avatar } from "@nextui-org/react";
+import { useState } from "react";
 
 export default function Restaurant() {
   const router = useRouter();
   const restaurantId = router.query.id ? String(router.query.id) : "";
-  const restaurant = api.restaurant.getById.useQuery({ id: restaurantId });
 
-  const [selectedCategory, setSelectedCategory] = useState<
-    string | undefined
-  >();
-  const selectCategory = (id: string) => setSelectedCategory(id);
+  const [searchValue, setSearchValue] = useState("");
+
+  const restaurant = api.restaurant.getById.useQuery(
+    { id: restaurantId, search: searchValue },
+    { enabled: Boolean(restaurantId), keepPreviousData: true },
+  );
+
+  const scrolltoHash = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    element?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+      inline: "nearest",
+    });
+  };
 
   if (!restaurant.data) {
     return null;
@@ -44,6 +55,8 @@ export default function Restaurant() {
                 className="block w-full border border-slate-300 bg-white py-2 pl-10 pr-3 text-sm placeholder-slate-500 focus:border-slate-500 focus:text-slate-900 focus:placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-500 sm:text-sm"
                 placeholder="Buscar"
                 type="search"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
               />
             </div>
           </div>
@@ -51,18 +64,69 @@ export default function Restaurant() {
       </header>
       <main className="container mx-auto">
         <div
-          className="flex flex-row gap-4 overflow-x-auto p-4"
+          className="my-4 flex flex-row gap-4 overflow-x-auto p-4"
           id="categories"
         >
           {restaurant.data.menu?.[0]?.category.map((category) => {
-            const isSelected = category.id === selectedCategory;
             return (
               <CategoryCard
-                key={category.id}
                 category={category}
-                onClick={() => selectCategory(category.id)}
-                selected={isSelected}
+                key={category.id}
+                onClick={() => scrolltoHash(category.name)}
               />
+            );
+          })}
+        </div>
+        <div className="space-y-4 px-4 font-mono" id="products">
+          {restaurant.data.menu?.[0]?.category.map((category) => {
+            return (
+              <div key={category.id} id={category.name}>
+                <h3 className="mb-4 text-3xl">{category.name}</h3>
+                <ul role="list" className="divide-y divide-gray-200">
+                  {category.product.length > 0 ? (
+                    category.product.map((product) => {
+                      const ARS = new Intl.NumberFormat("es-Ar", {
+                        style: "currency",
+                        currency: "ARS",
+                      });
+
+                      return (
+                        <li key={product.id} className="block hover:bg-gray-50">
+                          <div className="flex items-center px-4 py-4 sm:px-6">
+                            <div className="flex min-w-0 flex-1 items-center">
+                              {product.image && (
+                                <Avatar
+                                  src={product.image}
+                                  className="h-20 w-20 text-large"
+                                />
+                              )}
+                              <div className="min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4">
+                                <div>
+                                  <p className="text-sm font-bold text-slate-900">
+                                    {product.name}
+                                  </p>
+                                  <p className="mt-2 flex items-center text-sm text-slate-500">
+                                    {product.description}
+                                  </p>
+                                  <p className="float-right mt-2 flex items-center text-sm font-bold text-slate-600">
+                                    {ARS.format(Number(product.price))}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })
+                  ) : (
+                    <li className="text-center text-sm text-slate-400">
+                      {searchValue
+                        ? "No se han encontrado productos en esta categoría"
+                        : "No existen productos en esta categoría"}
+                    </li>
+                  )}
+                </ul>
+              </div>
             );
           })}
         </div>
